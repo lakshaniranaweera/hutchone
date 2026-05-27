@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Spin & Win</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader" class="loader">
+    <div class="loader-ring"></div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <section id="homePage" class="page home-page active">
+    <div class="bg-overlay"></div>
+
+    <!-- Settings gear icon (top-right) -->
+    <button id="settingsIcon" class="settings-icon" title="Settings" aria-label="Settings">⚙</button>
+
+    <div class="home-content">
+      <button id="startBtn" class="neon-btn pulse" aria-label="Start Game">
+        <span>START</span>
+      </button>
+      <!-- Hidden admin entry: long-press top-left corner 1.5s -->
+      <div id="adminHotspot" class="admin-hotspot" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS PANEL (home page) -->
+  <div id="settingsBackdrop" class="settings-backdrop"></div>
+  <div id="settingsPanel" class="settings-panel" role="dialog" aria-modal="true">
+    <button id="settingsClose" class="settings-close" aria-label="Close">✕</button>
+    <h3>SETTINGS</h3>
+
+    <div class="settings-list">
+      <button class="settings-item" id="setFullscreen">
+        <div class="icon">⛶</div>
+        <div class="body">
+          <div class="title">FULLSCREEN</div>
+          <div class="desc">Enter or exit fullscreen mode</div>
+        </div>
+      </button>
+
+      <button class="settings-item" id="setSound">
+        <div class="icon" id="setSoundIcon">🔊</div>
+        <div class="body">
+          <div class="title">SOUND</div>
+          <div class="desc" id="setSoundDesc">Sound is ON</div>
+        </div>
+      </button>
+
+      <button class="settings-item" id="setAdmin">
+        <div class="icon">🛡</div>
+        <div class="body">
+          <div class="title">ADMIN PANEL</div>
+          <div class="desc">Open admin control panel</div>
+        </div>
+      </button>
+
+      <button class="settings-item" id="setAbout">
+        <div class="icon">ℹ</div>
+        <div class="body">
+          <div class="title">ABOUT</div>
+          <div class="desc">Game info &amp; version</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- GAME PAGE — wheel + spin button only -->
+  <section id="gamePage" class="page game-page">
+    <div class="bg-overlay"></div>
+    <div class="wheel-stage">
+      <div class="glass-panel">
+        <div class="wheel-container">
+          <div class="pointer"></div>
+          <canvas id="wheelCanvas" width="700" height="700"></canvas>
+          <div class="wheel-center">
+            <img id="centerLogo" src="" alt="" onerror="this.style.display='none'" />
+          </div>
+        </div>
+      </div>
+      <button id="spinBtn" class="neon-btn spin-btn">
+        <span>SPIN</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- VIDEO OVERLAY — fullscreen, no controls -->
+  <div id="videoOverlay" class="video-overlay">
+    <video id="rewardVideo" playsinline preload="auto"></video>
+  </div>
+
+  <!-- Confetti -->
+  <canvas id="confetti" class="confetti"></canvas>
+
+  <!-- Audio -->
+  <audio id="spinSound" src="" preload="auto"></audio>
+  <audio id="winSound" src="" preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

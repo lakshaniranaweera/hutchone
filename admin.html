@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Spin & Win</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* =========================================================
+       ADMIN — local styles (uses shared vars from style.css)
+       ========================================================= */
+    html, body { overflow: auto; }
+
+    /* ---------- Admin Home (FIRST PAGE) ---------- */
+    .admin-home {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      background:
+        linear-gradient(135deg, rgba(10,5,40,0.65), rgba(0,0,0,0.85)),
+        radial-gradient(circle at 25% 25%, #2a0a4a, transparent 60%),
+        radial-gradient(circle at 75% 75%, #042a4a, transparent 60%),
+        #06051a;
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-home::before, .admin-home::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+    }
+    .admin-home::before {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,46,154,0.25), transparent 70%);
+      top: -200px; left: -200px;
+      animation: floatA 12s ease-in-out infinite;
+    }
+    .admin-home::after {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,229,255,0.25), transparent 70%);
+      bottom: -150px; right: -150px;
+      animation: floatB 14s ease-in-out infinite;
+    }
+    @keyframes floatA { 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(40px,30px); } }
+    @keyframes floatB { 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-40px,-30px); } }
+
+    .home-card {
+      position: relative;
+      max-width: 480px;
+      width: 100%;
+      padding: 50px 40px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      text-align: center;
+      box-shadow:
+        0 0 60px rgba(255,46,154,0.25),
+        0 0 120px rgba(0,229,255,0.18),
+        inset 0 0 30px rgba(255,255,255,0.04);
+      z-index: 1;
+    }
+    .admin-logo {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(255,46,154,0.6);
+      animation: pulseLogo 2.4s ease-in-out infinite;
+    }
+    @keyframes pulseLogo {
+      0%,100% { box-shadow: 0 0 30px rgba(255,46,154,0.6); transform: scale(1); }
+      50%     { box-shadow: 0 0 55px rgba(255,46,154,0.9); transform: scale(1.04); }
+    }
+    .admin-home h1 {
+      font-size: clamp(22px, 4vw, 32px);
+      letter-spacing: 6px;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 14px var(--neon-cyan);
+      margin-bottom: 8px;
+    }
+    .admin-home .tagline {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 30px;
+    }
+    .admin-home .info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .info-pill {
+      padding: 12px 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+    }
+    .info-pill .v {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--neon-gold);
+      text-shadow: 0 0 10px rgba(255,204,51,0.4);
+    }
+    .info-pill .k {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .home-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 4px;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(255,46,154,0.5);
+      transition: 0.25s;
+    }
+    .home-btn:hover { transform: scale(1.03); box-shadow: 0 0 40px rgba(255,46,154,0.8); }
+    .home-btn:active { transform: scale(0.98); }
+    .home-back {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+    }
+    .home-back:hover { color: var(--neon-cyan); }
+
+    /* ---------- Settings Icon (top-right) ---------- */
+    .settings-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: 0.25s;
+      box-shadow: 0 0 18px rgba(0,229,255,0.3);
+    }
+    .settings-icon:hover {
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 0 30px rgba(0,229,255,0.6);
+      border-color: var(--neon-cyan);
+    }
+    .settings-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .settings-backdrop.active { opacity: 1; visibility: visible; }
+    .settings-panel {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -45%) scale(0.9);
+      width: min(420px, 92vw);
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(40,15,80,0.95), rgba(10,5,30,0.95));
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 22px;
+      box-shadow: 0 0 60px rgba(255,46,154,0.4), 0 0 120px rgba(0,229,255,0.25);
+      z-index: 51;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+    }
+    .settings-panel.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .settings-panel h3 {
+      color: var(--neon-cyan);
+      letter-spacing: 4px;
+      font-size: 16px;
+      margin-bottom: 22px;
+      text-align: center;
+      text-shadow: 0 0 10px var(--neon-cyan);
+    }
+    .settings-list { display: flex; flex-direction: column; gap: 10px; }
+    .settings-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 14px;
+      text-align: left;
+      width: 100%;
+    }
+    .settings-item:hover {
+      background: rgba(255,46,154,0.15);
+      border-color: var(--neon-pink);
+      transform: translateX(4px);
+    }
+    .settings-item .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .settings-item .body { flex: 1; }
+    .settings-item .title { font-weight: 700; letter-spacing: 1.5px; }
+    .settings-item .desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 2px;
+    }
+    .settings-item.danger:hover {
+      background: rgba(255,85,119,0.18);
+      border-color: #ff5577;
+    }
+    .settings-item.danger .icon {
+      background: linear-gradient(135deg, #ff5577, #ff7a00);
+    }
+    .settings-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .settings-close:hover { background: rgba(255,46,154,0.3); }
+
+    /* ---------- Login + Dashboard ---------- */
+    .admin-shell {
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(10,5,40,0.7), rgba(0,0,0,0.8)),
+        radial-gradient(circle at 20% 20%, #2a0a4a, transparent 60%),
+        #08071a;
+      padding: 30px 20px;
+    }
+    .admin-card {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: var(--shadow-soft);
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .admin-header h1 {
+      font-size: clamp(20px, 3vw, 30px);
+      color: var(--neon-cyan);
+      text-shadow: 0 0 12px var(--neon-cyan);
+      letter-spacing: 3px;
+    }
+    .admin-header a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .login-box {
+      max-width: 380px;
+      margin: 80px auto;
+      padding: 40px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+    }
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: var(--neon-pink);
+      letter-spacing: 3px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+    .field label {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .field input:focus {
+      border-color: var(--neon-cyan);
+      outline: none;
+      box-shadow: 0 0 10px rgba(0,229,255,0.4);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .stat {
+      padding: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      text-align: center;
+    }
+    .stat .num {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--neon-gold);
+      text-shadow: 0 0 12px var(--neon-gold);
+    }
+    .stat .lbl {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .seg-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 10px;
+    }
+    .seg-table th, .seg-table td {
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .seg-table th {
+      color: var(--neon-cyan);
+      letter-spacing: 2px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .seg-table td { color: #fff; vertical-align: middle; }
+    .seg-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-start;
+      text-align: left;
+    }
+    .swatch { width: 18px; height: 18px; border-radius: 4px; border: 1px solid #fff3; flex-shrink: 0; }
+    .seg-table input[type="number"] {
+      width: 70px;
+      padding: 6px 8px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .seg-table input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+    .seg-table .progress {
+      width: 100px; height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    .seg-table .progress > span {
+      display: block; height: 100%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    }
+    .exhausted { color: #ff5577 !important; font-weight: 700; }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 12px 22px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--neon-cyan), #007aaa); color: #fff; }
+    .btn-warn    { background: linear-gradient(135deg, #ff7a00, var(--neon-pink)); color: #fff; }
+    .btn-ghost   { background: transparent; border: 1px solid #fff4; color: #fff; }
+    .btn:hover { filter: brightness(1.15); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(0,0,0,0.85);
+      border: 1px solid var(--neon-cyan);
+      padding: 12px 24px;
+      border-radius: 30px;
+      color: var(--neon-cyan);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+      z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN HOME (first page) -->
+  <div id="adminHome" class="admin-home">
+
+    <!-- Settings gear icon -->
+    <button id="settingsIcon" class="settings-icon" title="Settings" aria-label="Settings">⚙</button>
+
+    <div class="home-card">
+      <div class="admin-logo">⚙</div>
+      <h1>ADMIN</h1>
+      <div class="tagline">Spin &amp; Win — Control Panel</div>
+
+      <div class="info">
+        <div class="info-pill"><div class="v" id="homePlays">0</div><div class="k">Plays Today</div></div>
+        <div class="info-pill"><div class="v" id="homeWins">0</div><div class="k">Wins Today</div></div>
+        <div class="info-pill"><div class="v" id="homeActive">0</div><div class="k">Active</div></div>
+      </div>
+
+      <button id="enterAdminBtn" class="home-btn">ENTER ADMIN</button>
+      <a href="index.html" class="home-back">← BACK TO GAME</a>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settingsBackdrop" class="settings-backdrop"></div>
+  <div id="settingsPanel" class="settings-panel" role="dialog" aria-modal="true">
+    <button id="settingsClose" class="settings-close" aria-label="Close">✕</button>
+    <h3>SETTINGS</h3>
+
+    <div class="settings-list">
+      <button class="settings-item" id="setOpenDash">
+        <div class="icon">📊</div>
+        <div class="body">
+          <div class="title">OPEN DASHBOARD</div>
+          <div class="desc">Manage segments, view live stats</div>
+        </div>
+      </button>
+      <button class="settings-item" id="setReset">
+        <div class="icon">🔄</div>
+        <div class="body">
+          <div class="title">RESET ALL COUNTS</div>
+          <div class="desc">Clear today's plays &amp; win counts</div>
+        </div>
+      </button>
+      <button class="settings-item" id="setFullscreen">
+        <div class="icon">⛶</div>
+        <div class="body">
+          <div class="title">TOGGLE FULLSCREEN</div>
+          <div class="desc">Enter or exit fullscreen mode</div>
+        </div>
+      </button>
+      <button class="settings-item" id="setExport">
+        <div class="icon">⬇</div>
+        <div class="body">
+          <div class="title">EXPORT STATE</div>
+          <div class="desc">Download counts &amp; analytics JSON</div>
+        </div>
+      </button>
+      <button class="settings-item" id="setChangePw">
+        <div class="icon">🔑</div>
+        <div class="body">
+          <div class="title">CHANGE PASSWORD</div>
+          <div class="desc">Set a new admin password</div>
+        </div>
+      </button>
+      <button class="settings-item danger" id="setLogout">
+        <div class="icon">⏻</div>
+        <div class="body">
+          <div class="title">LOGOUT</div>
+          <div class="desc">End current admin session</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginScreen" class="admin-shell" style="display:none">
+    <div class="login-box">
+      <h2>ADMIN LOGIN</h2>
+      <div class="field">
+        <label>Password</label>
+        <input id="pwInput" type="password" placeholder="Enter password" />
+      </div>
+      <button id="loginBtn" class="btn btn-primary" style="width:100%">UNLOCK</button>
+      <p style="margin-top:14px;font-size:12px;color:rgba(255,255,255,0.5)">
+        Default password: <b>admin123</b>
+      </p>
+      <p style="margin-top:14px"><a href="index.html" style="color:rgba(255,255,255,0.6);font-size:12px">← Back to Game</a></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="admin-shell" style="display:none">
+    <div class="admin-card">
+      <div class="admin-header">
+        <h1>SPIN &amp; WIN — ADMIN</h1>
+        <div>
+          <a href="index.html">← Game</a> &nbsp;|&nbsp;
+          <a href="#" id="logoutBtn">Logout</a>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="num" id="statPlays">0</div><div class="lbl">Total Plays Today</div></div>
+        <div class="stat"><div class="num" id="statWins">0</div><div class="lbl">Total Wins Today</div></div>
+        <div class="stat"><div class="num" id="statSegs">5</div><div class="lbl">Total Segments</div></div>
+        <div class="stat"><div class="num" id="statActive">0</div><div class="lbl">Active Now</div></div>
+      </div>
+
+      <h2 style="color:var(--neon-pink);letter-spacing:3px;margin:10px 0;">SEGMENT STATUS</h2>
+      <table class="seg-table">
+        <thead>
+          <tr>
+            <th>Prize</th>
+            <th>Current Wins</th>
+            <th>Max Wins</th>
+            <th>Remaining</th>
+            <th>Progress</th>
+            <th>Enabled</th>
+          </tr>
+        </thead>
+        <tbody id="segBody"></tbody>
+      </table>
+
+      <div class="btn-row">
+        <button id="saveBtn"   class="btn btn-primary">SAVE CHANGES</button>
+        <button id="resetBtn"  class="btn btn-warn">RESET ALL COUNTS</button>
+        <button id="refreshBtn" class="btn btn-ghost">REFRESH</button>
+      </div>
+
+      <p style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.5)">
+        Tip: Edit prize labels, images, videos, colors, weights in
+        <code style="color:var(--neon-cyan)">script.js → wheelItems</code>.
+      </p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,443 @@
+/* =========================================================
+   SPIN & WIN — Premium Casino / Neon Glassmorphism
+   Fullscreen, no scroll, 60fps animations
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+  background: #05060f;
+  color: #fff;
+  touch-action: manipulation;
+}
+
+:root {
+  --neon-pink: #ff2e9a;
+  --neon-cyan: #00e5ff;
+  --neon-gold: #ffcc33;
+  --neon-purple: #8a2be2;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --shadow-soft: 0 10px 40px rgba(0,0,0,0.55);
+}
+
+/* =========================================================
+   LOADER
+   ========================================================= */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at center, #0d0b2b 0%, #05060f 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.loader.hidden { opacity: 0; visibility: hidden; }
+.loader-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top-color: var(--neon-cyan);
+  border-right-color: var(--neon-pink);
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 30px rgba(0,229,255,0.5);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* =========================================================
+   PAGE TRANSITIONS
+   ========================================================= */
+.page {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.05);
+  transition: opacity 0.7s ease, transform 0.7s ease, visibility 0.7s;
+  overflow: hidden;
+}
+.page.active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+/* Fullscreen backgrounds (drop your own files in images/) */
+.home-page {
+  background:
+    linear-gradient(135deg, rgba(10,5,40,0.35), rgba(0,0,0,0.55)),
+    url('images/home-bg.jpg') center/cover no-repeat,
+    radial-gradient(circle at 30% 30%, #2a0a4a, transparent 60%),
+    radial-gradient(circle at 70% 70%, #042a4a, transparent 60%),
+    #08071a;
+}
+.game-page {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.7)),
+    url('images/game-bg.jpg') center/cover no-repeat,
+    #07051a;
+}
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* =========================================================
+   HOME PAGE — only START button
+   ========================================================= */
+.home-content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.admin-hotspot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70px;
+  height: 70px;
+  /* invisible — long-press 1.5s to open admin */
+}
+
+/* =========================================================
+   NEON BUTTONS
+   ========================================================= */
+.neon-btn {
+  position: relative;
+  padding: 20px 70px;
+  font-size: clamp(20px, 3.4vw, 30px);
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 60px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 0 25px rgba(255,46,154,0.6),
+    0 0 60px rgba(138,43,226,0.4),
+    inset 0 0 20px rgba(255,255,255,0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.neon-btn span { position: relative; z-index: 2; }
+.neon-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+.neon-btn:hover::before { transform: translateX(100%); }
+.neon-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 35px rgba(255,46,154,0.9),
+    0 0 80px rgba(138,43,226,0.7);
+}
+.neon-btn:active { transform: scale(0.97); }
+.neon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
+.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 25px rgba(255,46,154,0.6), 0 0 60px rgba(138,43,226,0.4); }
+  50%      { box-shadow: 0 0 45px rgba(255,46,154,0.9), 0 0 100px rgba(138,43,226,0.7); }
+}
+
+/* =========================================================
+   GAME PAGE — Wheel only
+   ========================================================= */
+.wheel-stage {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 34px;
+  padding: 20px;
+}
+
+.glass-panel {
+  position: relative;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.wheel-container {
+  position: relative;
+  width: min(72vh, 85vw, 700px);
+  aspect-ratio: 1 / 1;
+}
+
+#wheelCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+/* Pointer (top) */
+.pointer {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 22px solid transparent;
+  border-right: 22px solid transparent;
+  border-top: 38px solid var(--neon-gold);
+  z-index: 4;
+}
+
+/* Fixed center logo */
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffcc33, #ff2e9a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 25px rgba(255,204,51,0.7),
+    inset 0 0 14px rgba(0,0,0,0.4);
+  border: 4px solid rgba(255,255,255,0.85);
+  z-index: 3;
+  overflow: hidden;
+}
+.wheel-center img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.spin-btn {
+  background: linear-gradient(135deg, var(--neon-gold), #ff7a00);
+  box-shadow: none;
+  padding: 18px 80px;
+}
+.spin-btn:hover {
+  box-shadow: none;
+  transform: scale(1.04);
+}
+
+/* =========================================================
+   VIDEO OVERLAY — fullscreen, no controls
+   ========================================================= */
+.video-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0.6s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.video-overlay.active { opacity: 1; visibility: visible; }
+.video-overlay video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  pointer-events: none;
+}
+
+/* Confetti */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 95;
+}
+
+/* =========================================================
+   SETTINGS — gear icon + glass panel (home page)
+   ========================================================= */
+.settings-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: 0.25s;
+  box-shadow:
+    0 0 20px rgba(0,229,255,0.35),
+    0 0 40px rgba(255,46,154,0.2);
+  animation: gearPulse 3s ease-in-out infinite;
+}
+.settings-icon:hover {
+  transform: rotate(90deg) scale(1.12);
+  box-shadow:
+    0 0 35px rgba(0,229,255,0.7),
+    0 0 70px rgba(255,46,154,0.4);
+  border-color: var(--neon-cyan);
+}
+@keyframes gearPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,229,255,0.35), 0 0 40px rgba(255,46,154,0.2); }
+  50%      { box-shadow: 0 0 30px rgba(0,229,255,0.55), 0 0 60px rgba(255,46,154,0.35); }
+}
+
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.settings-backdrop.active { opacity: 1; visibility: visible; }
+
+.settings-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%) scale(0.9);
+  width: min(420px, 92vw);
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(40,15,80,0.95), rgba(10,5,30,0.95));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 22px;
+  box-shadow:
+    0 0 60px rgba(255,46,154,0.4),
+    0 0 120px rgba(0,229,255,0.25);
+  z-index: 201;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+}
+.settings-panel.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+.settings-panel h3 {
+  color: var(--neon-cyan);
+  letter-spacing: 4px;
+  font-size: 16px;
+  margin-bottom: 22px;
+  text-align: center;
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+.settings-list { display: flex; flex-direction: column; gap: 10px; }
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+.settings-item:hover {
+  background: rgba(255,46,154,0.15);
+  border-color: var(--neon-pink);
+  transform: translateX(4px);
+}
+.settings-item .icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.settings-item .body { flex: 1; }
+.settings-item .title {
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+.settings-item .desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 2px;
+}
+.settings-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+.settings-close:hover { background: rgba(255,46,154,0.3); }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (orientation: portrait) and (max-width: 600px) {
+  .wheel-container { width: min(85vw, 65vh); }
+  .glass-panel { padding: 15px; }
+  .neon-btn { padding: 16px 50px; letter-spacing: 4px; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .wheel-container { width: min(68vh, 55vw); }
+  .wheel-stage { flex-direction: row; gap: 40px; }
+}
+@media (max-width: 380px) {
+  .neon-btn { padding: 14px 38px; font-size: 18px; letter-spacing: 3px; }
+}
