@@ -1,85 +1,18 @@
 /* =========================================================
-   SPIN & WIN — 5-Segment Wheel Game
-   Canvas wheel, weighted random, hard-coded win caps,
+   SPIN & WIN — Wheel Game
+   Canvas wheel, bag-draw selection, hard-coded win caps,
    7-second fullscreen video reward, confetti, sounds.
-   =========================================================
-   EDIT wheelItems BELOW to customize prizes.
+   ---------------------------------------------------------
+   Prize definitions live in wheel-config.js (loaded before
+   this file in index.html) so the admin panel can read the
+   same prize list. Edit prizes there.
    ========================================================= */
-
-/* ----------------- WHEEL CONFIG (edit me) ----------------- */
-const wheelItems = [
-  {
-    id: 1,
-    label: "Prize 1",
-    image: "images/prize1.png",
-    video: "videos/prize1.mp4",
-    color: "#ff2e9a",
-    weight: 40,
-    maxWins: 3,
-    currentWins: 0,
-    enabled: true
-  },
-  {
-    id: 2,
-    label: "Prize 2",
-    image: "images/prize2.png",
-    video: "videos/prize2.mp4",
-    color: "#00e5ff",
-    weight: 25,
-    maxWins: 10,
-    currentWins: 0,
-    enabled: true
-  },
-  {
-    id: 3,
-    label: "Grand Prize",
-    image: "images/prize3.png",
-    video: "videos/prize3.mp4",
-    color: "#ffcc33",
-    weight: 5,
-    maxWins: 1,
-    currentWins: 0,
-    enabled: true
-  },
-  {
-    id: 4,
-    label: "Prize 4",
-    image: "images/prize4.png",
-    video: "videos/prize4.mp4",
-    color: "#8a2be2",
-    weight: 15,
-    maxWins: 5,
-    currentWins: 0,
-    enabled: true
-  },
-  {
-    id: 5,
-    label: "Try Again",
-    image: "images/prize5.png",
-    video: "videos/prize5.mp4",
-    color: "#00ff88",
-    weight: 15,
-    maxWins: 0,     // 0 = UNLIMITED
-    currentWins: 0,
-    enabled: true
-  }
-];
-
-/* ----------------- GLOBAL OPTIONS ----------------- */
-const GAME_OPTIONS = {
-  centerLogo:    "images/logo.png",
-  spinSound:     "sounds/spin.mp3",
-  winSound:      "sounds/win.mp3",
-  videoDuration: 7        // seconds (per spec)
-};
-
-const STORAGE_KEY   = 'spinwin_state_v2';
-const ANALYTICS_KEY = 'spinwin_analytics_v2';
 
 /* ----------------- STATE ----------------- */
 let isSpinning = false;
 let currentRotation = 0;
 let segmentImages = [];
+let spinBag = [];  // Shuffled queue of item indices — guarantees each prize hits its maxWins quota.
 
 mergePersistedState();
 let analytics = loadAnalytics();
@@ -114,6 +47,27 @@ window.addEventListener('resize', () => {
   setupHiDPICanvas();
   drawWheel(currentRotation);
   resizeConfetti();
+});
+
+['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'].forEach(ev => {
+  document.addEventListener(ev, () => {
+    setTimeout(() => {
+      setupHiDPICanvas();
+      drawWheel(currentRotation);
+      resizeConfetti();
+    }, 100);
+  });
+});
+
+/* Live sync with the admin panel — if maxWins / enabled changes in
+   localStorage (e.g. admin Saves in another tab), reapply immediately
+   so the next spin respects the new caps without needing a reload. */
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_KEY) {
+    mergePersistedState();
+    spinBag = [];                  // force rebuild with new caps on next spin
+    drawWheel(currentRotation);
+  }
 });
 
 /* ----------------- EVENTS ----------------- */
@@ -249,9 +203,9 @@ function preloadSegmentImages() {
   segmentImages = wheelItems.map(item => {
     if (!item.image) return null;
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    img.onload  = () => drawWheel(currentRotation);
+    img.onerror = () => console.warn('Wheel image failed to load:', item.image);
     img.src = item.image;
-    img.onload = () => drawWheel(currentRotation);
     return img;
   });
 }
@@ -287,32 +241,22 @@ function drawWheel(rotation) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Label + image
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(rotation + i * arc - Math.PI / 2);
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#fff';
-    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-    ctx.shadowBlur = 6;
-    ctx.font = `800 ${Math.max(14, radius * 0.08)}px Segoe UI, sans-serif`;
-    ctx.fillText(item.label, radius - 22, 6);
-
+    // Prize image (labels removed). Per-item `scale` (default 1) shrinks/grows the image.
     const img = segmentImages[i];
     if (img && img.complete && img.naturalWidth) {
-      const size = radius * 0.22;
-      ctx.shadowBlur = 0;
-      ctx.drawImage(img, radius * 0.45, -size / 2, size, size);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation + i * arc - Math.PI / 2);
+      const scale = typeof item.scale === 'number' ? item.scale : 1;
+      const baseSize = radius * 0.34;
+      const size = baseSize * scale;
+      const center = radius * 0.57;
+      ctx.drawImage(img, center - size / 2, -size / 2, size, size);
+      ctx.restore();
     }
-    ctx.restore();
   }
 
-  // Outer ring
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = '#ffcc33';
-  ctx.stroke();
+  // (Outer gold ring removed)
 }
 
 function lighten(hex, percent) {
@@ -330,39 +274,59 @@ function isExhausted(item) {
   return false;
 }
 
+/* Build a shuffled "bag" of item indices. Each eligible item contributes
+   one ticket per remaining win-slot (maxWins - currentWins). Unlimited
+   items (maxWins === 0) contribute one ticket per refill. Drawing from
+   this bag guarantees the exact distribution configured in the admin. */
+function rebuildBag() {
+  spinBag = [];
+  wheelItems.forEach((item, idx) => {
+    if (!item.enabled) return;
+    if (item.maxWins === 0) {
+      spinBag.push(idx);
+    } else {
+      const remaining = Math.max(0, item.maxWins - item.currentWins);
+      for (let i = 0; i < remaining; i++) spinBag.push(idx);
+    }
+  });
+  // Fisher-Yates shuffle
+  for (let i = spinBag.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [spinBag[i], spinBag[j]] = [spinBag[j], spinBag[i]];
+  }
+}
+
 /* ----------------- SPIN ----------------- */
 function spin() {
   if (isSpinning) return;
 
-  // Filter eligible segments — respects hard-coded win caps
-  const eligible = wheelItems
-    .map((item, idx) => ({ item, idx }))
-    .filter(({ item }) => !isExhausted(item));
+  // Refill bag if empty (first spin, or after the previous bag is drained).
+  if (spinBag.length === 0) rebuildBag();
 
-  if (eligible.length === 0) return;     // all prizes exhausted
+  // Pop the next ticket that still corresponds to a non-exhausted item.
+  let winnerIdx;
+  while (spinBag.length > 0) {
+    const candidate = spinBag.shift();
+    if (!isExhausted(wheelItems[candidate])) { winnerIdx = candidate; break; }
+  }
+  if (winnerIdx === undefined) return;     // every item exhausted
 
   isSpinning = true;
   spinBtn.disabled = true;
 
-  // Weighted random selection
-  const totalW = eligible.reduce((sum, { item }) => sum + Math.max(1, item.weight), 0);
-  let r = Math.random() * totalW;
-  let winnerIdx = eligible[0].idx;
-  for (const { item, idx } of eligible) {
-    r -= Math.max(1, item.weight);
-    if (r <= 0) { winnerIdx = idx; break; }
-  }
-
   analytics.totalPlays++;
   saveAnalytics();
 
+  const TWO_PI = Math.PI * 2;
   const n = wheelItems.length;
-  const arc = (Math.PI * 2) / n;
-  const turns = 6 + Math.random() * 2;
-  const targetSeg = -winnerIdx * arc;
-  const final = (Math.PI * 2 * turns) + targetSeg;
+  const arc = TWO_PI / n;
+  // `turns` MUST be an integer — any fractional part adds a leftover rotation
+  // to the final angle and the winner lands offset from the arrow.
+  const turns = 6 + Math.floor(Math.random() * 3);   // 6, 7, or 8 full spins
+  const targetSeg = -winnerIdx * arc;                // exact rest angle (winner slice centered at top)
+  const final = (TWO_PI * turns) + targetSeg;
   const start = currentRotation;
-  const delta = final - (start % (Math.PI * 2));
+  const delta = final - (start % TWO_PI);
 
   playSound(spinSound);
 
@@ -372,12 +336,15 @@ function spin() {
   function animate(now) {
     const t = Math.min(1, (now - t0) / duration);
     const eased = easeOutCubic(t);
-    currentRotation = start + delta * eased;
-    drawWheel(currentRotation);
     if (t < 1) {
+      currentRotation = start + delta * eased;
+      drawWheel(currentRotation);
       requestAnimationFrame(animate);
     } else {
-      currentRotation = currentRotation % (Math.PI * 2);
+      // Snap exactly to the target so floating-point easing error can't
+      // leave the winner's slice a hair off-center under the arrow.
+      currentRotation = ((targetSeg % TWO_PI) + TWO_PI) % TWO_PI;
+      drawWheel(currentRotation);
       onWin(winnerIdx);
     }
   }

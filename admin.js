@@ -6,20 +6,23 @@
    ========================================================= */
 
 const ADMIN_PASSWORD = 'admin123';    // <-- change in production
-const STORAGE_KEY    = 'spinwin_state_v2';
-const ANALYTICS_KEY  = 'spinwin_analytics_v2';
 const SESSION_KEY    = 'spinwin_admin_session';
 const PASSWORD_KEY   = 'spinwin_admin_pw';
+// STORAGE_KEY and ANALYTICS_KEY come from wheel-config.js
 
-/* Reference for labels/colors. Operational state (currentWins,
-   enabled, maxWins) is loaded from localStorage. */
-const DEFAULT_ITEMS = [
-  { id: 1, label: "Prize 1",     color: "#ff2e9a", weight: 40, maxWins: 3,  currentWins: 0, enabled: true },
-  { id: 2, label: "Prize 2",     color: "#00e5ff", weight: 25, maxWins: 10, currentWins: 0, enabled: true },
-  { id: 3, label: "Grand Prize", color: "#ffcc33", weight: 5,  maxWins: 1,  currentWins: 0, enabled: true },
-  { id: 4, label: "Prize 4",     color: "#8a2be2", weight: 15, maxWins: 5,  currentWins: 0, enabled: true },
-  { id: 5, label: "Try Again",   color: "#00ff88", weight: 15, maxWins: 0,  currentWins: 0, enabled: true }
-];
+/* Prize definitions (labels, colors, IDs, default maxWins) come from
+   wheelItems in wheel-config.js — single source of truth. The admin
+   panel just layers operational state (currentWins, enabled, maxWins
+   overrides) on top of those defaults via localStorage. */
+const DEFAULT_ITEMS = wheelItems.map(item => ({
+  id: item.id,
+  label: item.label,
+  color: item.color,
+  weight: item.weight,
+  maxWins: item.maxWins,
+  currentWins: item.currentWins || 0,
+  enabled: item.enabled !== false
+}));
 
 const $ = (id) => document.getElementById(id);
 
@@ -192,8 +195,17 @@ function renderSegments() {
 /* ----------------- DASHBOARD ACTIONS ----------------- */
 saveBtn.addEventListener('click', () => {
   items.forEach(item => {
-    item.maxWins = Math.max(0, parseInt($(`max-${item.id}`).value, 10) || 0);
-    item.enabled = $(`en-${item.id}`).checked;
+    const maxInput = $(`max-${item.id}`);
+    const enInput  = $(`en-${item.id}`);
+    if (maxInput) {
+      const newMax = Math.max(0, parseInt(maxInput.value, 10) || 0);
+      // If the cap was changed, reset that item's win count so the new
+      // quota takes effect from now (e.g. "set to 2" means "wins 2 more
+      // times", not "wins 2 total counting previous spins").
+      if (newMax !== item.maxWins) item.currentWins = 0;
+      item.maxWins = newMax;
+    }
+    if (enInput) item.enabled = enInput.checked;
   });
   persistItems();
   renderAll();
@@ -213,10 +225,12 @@ refreshBtn.addEventListener('click', () => {
   showToast('Refreshed');
 });
 
+/* Auto-refresh stats only — never re-render the segment table while the
+   user might be editing inputs (that wiped unsaved changes). Use the
+   "Refresh" button to reload segment values from storage on demand. */
 setInterval(() => {
   if (dashboard.style.display !== 'none') {
-    items = loadItems();
-    renderAll();
+    renderStats();
   }
 }, 5000);
 

@@ -22,10 +22,10 @@ html, body {
 }
 
 :root {
-  --neon-pink: #ff2e9a;
-  --neon-cyan: #00e5ff;
-  --neon-gold: #ffcc33;
-  --neon-purple: #8a2be2;
+  --neon-pink: #f19e1b;
+  --neon-cyan: #c12f32;
+  --neon-gold: #d46315;
+  --neon-purple: #ac263f;
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.18);
   --shadow-soft: 0 10px 40px rgba(0,0,0,0.55);
@@ -86,8 +86,7 @@ html, body {
 }
 .game-page {
   background:
-    linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.7)),
-    url('images/game-bg.jpg') center/cover no-repeat,
+    url('background.png') center/cover no-repeat,
     #07051a;
 }
 .bg-overlay {
@@ -175,7 +174,7 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 34px;
+  gap: 70px;
   padding: 20px;
 }
 
@@ -185,12 +184,14 @@ html, body {
   background: transparent;
   border: none;
   box-shadow: none;
+  filter: none;
 }
 
 .wheel-container {
   position: relative;
-  width: min(72vh, 85vw, 700px);
+  width: min(90vh, 95vw, 900px);
   aspect-ratio: 1 / 1;
+  filter: none;
 }
 
 #wheelCanvas {
@@ -198,6 +199,22 @@ html, body {
   height: 100%;
   display: block;
   border-radius: 50%;
+  background: transparent;
+  filter: none;
+  box-shadow: none;
+}
+
+/* Decorative ring overlay (sits on top of the spinning wheel) */
+.wheel-ring {
+  position: absolute;
+  top: 51%;
+  left: 49%;
+  transform: translate(-50%, -50%);
+  width: 107%;
+  height: 107%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
 }
 
 /* Pointer (top) */
@@ -220,35 +237,56 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 22%;
-  height: 22%;
+  width: 20%;
+  height: 20%;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ffcc33, #ff2e9a);
+  background: linear-gradient(135deg, #ffffff, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow:
-    0 0 25px rgba(255,204,51,0.7),
-    inset 0 0 14px rgba(0,0,0,0.4);
+  box-shadow: none;
   border: 4px solid rgba(255,255,255,0.85);
   z-index: 3;
   overflow: hidden;
 }
 .wheel-center img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
+  height: 50%;
+  object-fit: center;
+ 
 }
 
+/* SPIN button — pinned to bottom of the page */
 .spin-btn {
+  position: absolute;
+  bottom: 106px;
+  left: 50%;
+  transform: translateX(-50%);
   background: linear-gradient(135deg, var(--neon-gold), #ff7a00);
-  box-shadow: none;
-  padding: 18px 80px;
+  box-shadow: none !important;
+  padding: 26px 110px;
+  font-size: clamp(22px, 4vw, 34px);
+  letter-spacing: 8px;
+  border-radius: 70px;
+  z-index: 5;
 }
 .spin-btn:hover {
-  box-shadow: none;
-  transform: scale(1.04);
+  box-shadow: none !important;
+  transform: translateX(-50%) scale(1.04);
+}
+.spin-btn:active { transform: translateX(-50%) scale(0.97); }
+
+/* Hard-strip ALL shadows / filters from the wheel area */
+.game-page,
+.game-page *,
+.game-page *::before,
+.game-page *::after {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+.game-page .pointer {
+  /* keep the gold triangle visible — no shadows */
 }
 
 /* =========================================================
