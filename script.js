@@ -27,7 +27,7 @@ const loader     = $('loader');
 const canvas     = $('wheelCanvas');
 const ctx        = canvas.getContext('2d');
 const videoOverlay = $('videoOverlay');
-const rewardVideo  = $('rewardVideo');
+const rewardImage  = $('rewardImage');
 const centerLogo = $('centerLogo');
 const spinSound  = $('spinSound');
 const winSound   = $('winSound');
@@ -366,27 +366,19 @@ function onWin(idx) {
   showVideoReward(item);
 }
 
-/* ----------------- VIDEO REWARD ----------------- */
+/* ----------------- WINNER IMAGE REWARD ----------------- */
 function showVideoReward(item) {
-  if (!item.video) { finishSpin(); return; }
+  const src = item.winnerImage || item.image;
+  if (!src) { finishSpin(); return; }
 
-  rewardVideo.src = item.video;
-  rewardVideo.muted = false;
+  rewardImage.src = src;
   videoOverlay.classList.add('active');
 
-  const p = rewardVideo.play();
-  if (p) p.catch(() => {
-    rewardVideo.muted = true;
-    rewardVideo.play().catch(() => {});
-  });
-
   setTimeout(() => {
-    rewardVideo.pause();
-    rewardVideo.removeAttribute('src');
-    rewardVideo.load();
     videoOverlay.classList.remove('active');
+    rewardImage.removeAttribute('src');
     finishSpin();
-  }, (GAME_OPTIONS.videoDuration || 7) * 1000);
+  }, (GAME_OPTIONS.winnerDuration || 5) * 1000);
 }
 
 function finishSpin() {
