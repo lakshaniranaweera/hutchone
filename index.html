@@ -104,6 +104,15 @@
   <audio id="spinSound" src="" preload="auto"></audio>
   <audio id="winSound" src="" preload="auto"></audio>
 
+  <!-- Cache image assets in the browser (3h) for fast loading -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+
   <script src="wheel-config.js"></script>
   <script src="script.js"></script>
 </body>
