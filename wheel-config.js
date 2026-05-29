@@ -73,7 +73,7 @@ const wheelItems = [
   {
     id: 6,
     label: "mug",
-    image: "images/mug.png",
+    image: "images/Mug.png",
     winnerImage: "images/winners/3.png",
     scale: 1.0,
     video: "videos/tryagain.mp4",
