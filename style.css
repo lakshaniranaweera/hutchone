@@ -259,7 +259,7 @@ html, body {
 /* SPIN button — pinned to bottom of the page */
 .spin-btn {
   position: absolute;
-  bottom: 269px;
+  bottom: 180px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, var(--neon-gold), #ff7a00);
