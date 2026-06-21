@@ -172,10 +172,19 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  gap: 70px;
+  gap: 24px;
   padding: 20px;
+  padding-top: 41vh;
+}
+
+.theme-banner {
+  width: min(72vw, 380px);
+  height: auto;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
 }
 
 .glass-panel {
@@ -189,7 +198,7 @@ html, body {
 
 .wheel-container {
   position: relative;
-  width: min(90vh, 95vw, 900px);
+  width: min(52vh, 86vw, 720px);
   aspect-ratio: 1 / 1;
   filter: none;
 }
@@ -259,7 +268,7 @@ html, body {
 /* SPIN button — pinned to bottom of the page */
 .spin-btn {
   position: absolute;
-  bottom: 270px;
+  bottom: 190px;
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, var(--neon-gold), #ff7a00);
@@ -475,7 +484,8 @@ html, body {
 }
 @media (orientation: landscape) and (max-height: 500px) {
   .wheel-container { width: min(68vh, 55vw); }
-  .wheel-stage { flex-direction: row; gap: 40px; }
+  .wheel-stage { flex-direction: row; gap: 40px; padding-top: 20px; justify-content: center; flex-wrap: wrap; }
+  .theme-banner { width: min(40vh, 220px); flex-basis: 100%; }
 }
 @media (max-width: 380px) {
   .neon-btn { padding: 14px 38px; font-size: 18px; letter-spacing: 3px; }
