@@ -456,6 +456,68 @@
     .btn-ghost   { background: transparent; border: 1px solid #fff4; color: #fff; }
     .btn:hover { filter: brightness(1.15); }
 
+    /* ---------- Layout & Positions editor ---------- */
+    .hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+    .layout-wrap {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .layout-controls {
+      flex: 1 1 300px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .slider-row { display: flex; flex-direction: column; gap: 10px; }
+    .slider-row label {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slider-row label .val {
+      color: var(--neon-gold);
+      font-weight: 800;
+      font-size: 14px;
+      text-shadow: 0 0 10px rgba(255,204,51,0.4);
+    }
+    .slider-row input[type="range"] {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      accent-color: var(--neon-pink);
+    }
+    .layout-preview { flex: 0 0 auto; text-align: center; }
+    .phone {
+      width: 236px;
+      height: 510px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 7px solid rgba(255,255,255,0.16);
+      background: #000;
+      box-shadow: 0 0 45px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
+      margin: 0 auto;
+    }
+    .phone iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .preview-cap {
+      margin-top: 12px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+    }
+
     .toast {
       position: fixed;
       bottom: 24px;
@@ -609,6 +671,47 @@
         Tip: Edit prize labels, images, videos, colors, weights in
         <code style="color:var(--neon-cyan)">script.js → wheelItems</code>.
       </p>
+    </div>
+
+    <!-- LAYOUT & POSITIONS -->
+    <div class="admin-card" style="margin-top:20px">
+      <div class="admin-header">
+        <h1>LAYOUT &amp; POSITIONS</h1>
+      </div>
+      <p class="hint">
+        Drag the sliders to move and resize the wheel and the START button.
+        The phone preview updates live. Click <b>SAVE LAYOUT</b> to apply it to the game —
+        no code changes or rebuild needed.
+      </p>
+
+      <div class="layout-wrap">
+        <div class="layout-controls">
+          <div class="slider-row">
+            <label>Wheel — vertical position <span class="val" id="valWheelTop">41%</span></label>
+            <input type="range" id="rngWheelTop" min="8" max="65" step="1" value="41" />
+          </div>
+          <div class="slider-row">
+            <label>Wheel — size <span class="val" id="valWheelSize">86%</span></label>
+            <input type="range" id="rngWheelSize" min="40" max="100" step="1" value="86" />
+          </div>
+          <div class="slider-row">
+            <label>START button — position from bottom <span class="val" id="valBtnBottom">22%</span></label>
+            <input type="range" id="rngBtnBottom" min="2" max="48" step="1" value="22" />
+          </div>
+
+          <div class="btn-row">
+            <button id="saveLayoutBtn"  class="btn btn-primary">SAVE LAYOUT</button>
+            <button id="resetLayoutBtn" class="btn btn-ghost">RESET TO DEFAULT</button>
+          </div>
+        </div>
+
+        <div class="layout-preview">
+          <div class="phone">
+            <iframe id="previewFrame" src="index.html?screen=game" title="Live preview"></iframe>
+          </div>
+          <div class="preview-cap">Live preview</div>
+        </div>
+      </div>
     </div>
   </div>
 

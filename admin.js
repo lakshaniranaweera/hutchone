@@ -314,6 +314,79 @@ $('setLogout').addEventListener('click', () => {
   setTimeout(() => location.reload(), 600);
 });
 
+/* ----------------- LAYOUT & POSITIONS EDITOR ----------------- */
+/* Lets the operator move/resize the wheel and START button from the UI.
+   Values are stored in localStorage (LAYOUT_KEY from wheel-config.js) and
+   read by the game (script.js) — no CSS edits or rebuilds required.
+   The phone preview is a live iframe of the game; slider changes are pushed
+   into it with postMessage, and SAVE persists them for the real game. */
+const previewFrame   = $('previewFrame');
+const rngWheelTop    = $('rngWheelTop');
+const rngWheelSize   = $('rngWheelSize');
+const rngBtnBottom   = $('rngBtnBottom');
+const saveLayoutBtn  = $('saveLayoutBtn');
+const resetLayoutBtn = $('resetLayoutBtn');
+
+let layout = loadLayout();
+
+function loadLayout() {
+  const l = Object.assign({}, DEFAULT_LAYOUT);
+  try {
+    const raw = localStorage.getItem(LAYOUT_KEY);
+    if (raw) Object.assign(l, JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+  return l;
+}
+
+function syncLayoutInputs() {
+  rngWheelTop.value  = layout.wheelTop;
+  rngWheelSize.value = layout.wheelSize;
+  rngBtnBottom.value = layout.buttonBottom;
+  $('valWheelTop').textContent  = layout.wheelTop + '%';
+  $('valWheelSize').textContent = layout.wheelSize + '%';
+  $('valBtnBottom').textContent = layout.buttonBottom + '%';
+}
+
+function pushLayoutToPreview() {
+  if (previewFrame && previewFrame.contentWindow) {
+    previewFrame.contentWindow.postMessage({ type: 'spinwin-layout', layout }, '*');
+  }
+}
+
+function onLayoutInput() {
+  layout = {
+    wheelTop:     parseInt(rngWheelTop.value, 10),
+    wheelSize:    parseInt(rngWheelSize.value, 10),
+    buttonBottom: parseInt(rngBtnBottom.value, 10)
+  };
+  syncLayoutInputs();
+  pushLayoutToPreview();
+}
+
+if (rngWheelTop && rngWheelSize && rngBtnBottom) {
+  [rngWheelTop, rngWheelSize, rngBtnBottom].forEach(r =>
+    r.addEventListener('input', onLayoutInput)
+  );
+
+  saveLayoutBtn.addEventListener('click', () => {
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+    showToast('Layout saved');
+  });
+
+  resetLayoutBtn.addEventListener('click', () => {
+    layout = Object.assign({}, DEFAULT_LAYOUT);
+    syncLayoutInputs();
+    pushLayoutToPreview();
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+    showToast('Layout reset to default');
+  });
+
+  // Push current values once the preview iframe has loaded the game.
+  previewFrame.addEventListener('load', pushLayoutToPreview);
+
+  syncLayoutInputs();
+}
+
 /* ----------------- HELPERS ----------------- */
 function showToast(msg) {
   toast.textContent = msg;

@@ -176,7 +176,8 @@ html, body {
   align-items: center;
   gap: 24px;
   padding: 20px;
-  padding-top: 41vh;
+  /* --wheel-top is set live by the admin Layout editor (falls back to 41vh) */
+  padding-top: var(--wheel-top, 41vh);
 }
 
 .theme-banner {
@@ -198,7 +199,8 @@ html, body {
 
 .wheel-container {
   position: relative;
-  width: min(52vh, 86vw, 720px);
+  /* --wheel-size is set live by the admin Layout editor (falls back to 86vw) */
+  width: min(var(--wheel-size, 86vw), 78vh, 720px);
   aspect-ratio: 1 / 1;
   filter: none;
 }
@@ -268,7 +270,8 @@ html, body {
 /* SPIN button — pinned to bottom of the page */
 .spin-btn {
   position: absolute;
-  bottom: 190px;
+  /* --spin-bottom is set live by the admin Layout editor (falls back to 22vh) */
+  bottom: var(--spin-bottom, 22vh);
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, var(--neon-gold), #ff7a00);
@@ -478,7 +481,8 @@ html, body {
    RESPONSIVE
    ========================================================= */
 @media (orientation: portrait) and (max-width: 600px) {
-  .wheel-container { width: min(85vw, 65vh); }
+  /* honour the admin size slider (--wheel-size) on phones, with a vh safety cap */
+  .wheel-container { width: min(var(--wheel-size, 86vw), 78vh); }
   .glass-panel { padding: 15px; }
   .neon-btn { padding: 16px 50px; letter-spacing: 4px; }
 }

@@ -93,5 +93,20 @@ const GAME_OPTIONS = {
   winnerDuration: 5
 };
 
+/* =========================================================
+   UI LAYOUT — positions/size of the on-screen components.
+   Adjustable live from the admin panel (no CSS edits / rebuild).
+   The game reads these and applies them as CSS variables.
+     wheelTop     — vh, space above the wheel (moves it up/down)
+     wheelSize    — vw, wheel diameter relative to screen width
+     buttonBottom — vh, START button distance from the bottom
+   ========================================================= */
+const DEFAULT_LAYOUT = {
+  wheelTop: 41,
+  wheelSize: 86,
+  buttonBottom: 22
+};
+
 const STORAGE_KEY   = 'spinwin_state_v2';
 const ANALYTICS_KEY = 'spinwin_analytics_v2';
+const LAYOUT_KEY    = 'spinwin_layout_v1';

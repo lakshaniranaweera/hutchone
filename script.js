@@ -37,10 +37,17 @@ const adminHotspot   = $('adminHotspot');
 /* ----------------- INIT ----------------- */
 window.addEventListener('load', () => {
   setTimeout(() => loader.classList.add('hidden'), 700);
+  applyLayout(loadLayout());
   applyGameOptions();
   setupHiDPICanvas();
   preloadSegmentImages();
   drawWheel(0);
+
+  // Deep-link used by the admin Layout editor's live preview to jump
+  // straight to the wheel screen (e.g. index.html?screen=game).
+  if (new URLSearchParams(location.search).get('screen') === 'game') {
+    switchPage(gamePage);
+  }
 });
 
 window.addEventListener('resize', () => {
@@ -66,6 +73,23 @@ window.addEventListener('storage', (e) => {
   if (e.key === STORAGE_KEY) {
     mergePersistedState();
     spinBag = [];                  // force rebuild with new caps on next spin
+    drawWheel(currentRotation);
+  }
+  // Admin saved a new layout in another tab — apply it immediately.
+  if (e.key === LAYOUT_KEY) {
+    applyLayout(loadLayout());
+    setupHiDPICanvas();
+    drawWheel(currentRotation);
+  }
+});
+
+/* Live layout preview — the admin panel posts layout values as the user
+   drags the sliders; apply them on the fly without touching localStorage. */
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (d && d.type === 'spinwin-layout') {
+    applyLayout(d.layout);
+    setupHiDPICanvas();
     drawWheel(currentRotation);
   }
 });
@@ -179,6 +203,25 @@ function loadAnalytics() {
 
 function saveAnalytics() {
   localStorage.setItem(ANALYTICS_KEY, JSON.stringify(analytics));
+}
+
+/* ----------------- LAYOUT (positions/size) ----------------- */
+function loadLayout() {
+  const layout = Object.assign({}, DEFAULT_LAYOUT);
+  try {
+    const raw = localStorage.getItem(LAYOUT_KEY);
+    if (raw) Object.assign(layout, JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+  return layout;
+}
+
+/* Apply layout values as CSS variables (read by style.css). */
+function applyLayout(layout) {
+  const L = Object.assign({}, DEFAULT_LAYOUT, layout || {});
+  const s = document.documentElement.style;
+  s.setProperty('--wheel-top',   L.wheelTop + 'vh');
+  s.setProperty('--wheel-size',  L.wheelSize + 'vw');
+  s.setProperty('--spin-bottom', L.buttonBottom + 'vh');
 }
 
 function applyGameOptions() {
@@ -401,6 +444,7 @@ function switchPage(target) {
 }
 
 function requestFullscreenIfPossible() {
+  if (window.top !== window.self) return;   // never fullscreen inside the admin preview iframe
   const el = document.documentElement;
   if (document.fullscreenElement) return;
   const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
