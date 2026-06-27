@@ -33,8 +33,8 @@ const wheelItems = [
   },
   {
     id: 3,
-    label: "Voucher",
-    image: "images/Rs500.png",
+    label: "Notebook",
+    image: "images/Book.png",
     winnerImage: "images/winners/5.png",
     scale: 1.0,
     video: "videos/prize3.mp4",
@@ -59,8 +59,8 @@ const wheelItems = [
   },
   {
     id: 5,
-    label: "keytag",
-    image: "images/Key%20Tag.png",
+    label: "Umbrella",
+    image: "images/Umbrella.png",
     winnerImage: "images/winners/2.png",
     scale: 1.4,
     video: "videos/prize5.mp4",
